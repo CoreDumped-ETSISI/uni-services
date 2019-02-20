@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  pdftableapi:
+    image: guad/pdftableapi
+    deploy:
+      replicas: 1
+  cafetapi:
+    image: guad/cafetapi
+    restart: always
+    environment:
+      PDF_TABLE_SERVER: "pdftableapi"
+    deploy:
+      replicas: 1
