@@ -26,7 +26,7 @@ def scrap_horarios():
         if not g in grupos:
             grupos[g] = [[] for _ in range(5)]
         
-        for clase in [{'day': dow_map[a[0]], 'hour': a[1:]} for a in horarios.split(';')]:
+        for clase in [{'day': dow_map[a[0]], 'hour': int(a[1:])} for a in horarios.split(';')]:
             grupos[g][clase['day']].append({
                 'name': asig,
                 'hour': clase['hour']

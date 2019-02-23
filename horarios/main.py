@@ -1,10 +1,15 @@
 import falcon
-import scrapper
+import cache
 import json
 
 class Horario(object):
     def on_get(self, req, resp, grupo=None):
-        horario = scrapper.scrap_horarios()
+        horario = cache.cachedHorario
+
+        if horario == None:
+            resp.body = json.dumps({'message':'Cache sin actualizar. Vuelva a intentar más tarde.'}, ensure_ascii=False)
+            resp.status = falcon.HTTP_503
+            return
 
         if grupo != None:
             grupo = grupo.upper()
@@ -18,6 +23,7 @@ class Horario(object):
 
 
 print('Starting up!')
+cache.start()
 
 app = falcon.API()
 
