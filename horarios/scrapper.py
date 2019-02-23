@@ -27,14 +27,18 @@ def scrap_horarios():
             grupos[g] = [[] for _ in range(5)]
         
         for clase in [{'day': dow_map[a[0]], 'hour': int(a[1:])} for a in horarios.split(';')]:
-            grupos[g][clase['day']].append({
-                'name': asig,
-                'hour': clase['hour']
-            })
+            if len(grupos[g][clase['day']]) > 0 and grupos[g][clase['day']][-1]['name'] == asig:
+                grupos[g][clase['day']][-1]['end'] = clase['hour'] + 1
+            else:
+                grupos[g][clase['day']].append({
+                    'name': asig,
+                    'start': clase['hour'],
+                    'end': clase['hour'] + 1
+                })
 
     for key in grupos:
         for day in range(len(grupos[key])):
-            grupos[key][day].sort(key=lambda x: x['hour'])
+            grupos[key][day].sort(key=lambda x: x['start'])
     
     return grupos
 
