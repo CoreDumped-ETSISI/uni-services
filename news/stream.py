@@ -11,8 +11,6 @@ cachedNews = []
 cachedEvents = []
 cachedAvisos = []
 
-cacheLock = threading.Lock()
-
 def do_job(feed, func):
     print('Getting ' + feed + '...')
 
@@ -47,31 +45,22 @@ def do_job(feed, func):
 
 def get_news_job():
     global cachedNews
-    
-    news = do_job('news', scrapper.news_json_scraper)
 
-    cacheLock.acquire()
+    news = do_job('news', scrapper.news_json_scraper)
     cachedNews = news
-    cacheLock.release()
 
 def get_events_job():
     global cachedEvents
 
     news = scrapper.events_json_scraper()
     news = do_job('events', scrapper.events_json_scraper)
-
-    cacheLock.acquire()
     cachedEvents = news
-    cacheLock.release()
 
 def get_avisos_job():
     global cachedAvisos
 
     news = do_job('avisos', scrapper.avisos_json_scraper)
-
-    cacheLock.acquire()
     cachedAvisos = news
-    cacheLock.release()
 
 def schedule_bg():
     print("Starting jobs...")
