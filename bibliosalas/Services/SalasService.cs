@@ -46,8 +46,13 @@ namespace bibliosalas.Services
                 for (int j = 0; j < row.Values.Count; j++)
                 {
                     var cell = row.Values[j];
-                    bool occupied = cell.EffectiveFormat.BackgroundColor.Red != 1;
-                    biblio.Salas[j].OccupiedMap[i] = occupied;
+
+                    var r = cell.EffectiveFormat.BackgroundColor.Red;
+                    var g = cell.EffectiveFormat.BackgroundColor.Green;
+                    var b = cell.EffectiveFormat.BackgroundColor.Blue;
+
+                    bool free = r == g && g == b;
+                    biblio.Salas[j].OccupiedMap[i] = !free;
                 }
             }
 
