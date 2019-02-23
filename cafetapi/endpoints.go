@@ -19,19 +19,20 @@ func (s *server) getCafe(c echo.Context) error {
 }
 
 func (s *server) getTodaysMenu(c echo.Context) error {
-	menu := s.getCachedCafeMenu()
-
-	if menu == nil {
-		return echo.NewHTTPError(http.StatusServiceUnavailable, "El menu está desactualizado.")
-	}
-
 	wd := time.Now().Weekday() - 1
+
 	if wd < 0 {
 		wd += 7
 	}
 
-	if int(wd) >= len(menu.Menu) {
+	if int(wd) >= 5 {
 		return echo.NewHTTPError(http.StatusBadRequest, "Hoy no hay clase.")
+	}
+
+	menu := s.getCachedCafeMenu()
+
+	if menu == nil {
+		return echo.NewHTTPError(http.StatusServiceUnavailable, "El menu está desactualizado.")
 	}
 
 	if !isCacheValid(menu.From, menu.To, time.Now()) {
@@ -43,16 +44,16 @@ func (s *server) getTodaysMenu(c echo.Context) error {
 }
 
 func (s *server) getTomorrowsMenu(c echo.Context) error {
+	wd := time.Now().Weekday()
+
+	if int(wd) >= 5 {
+		return echo.NewHTTPError(http.StatusBadRequest, "Mañana no hay clase.")
+	}
+
 	menu := s.getCachedCafeMenu()
 
 	if menu == nil {
 		return echo.NewHTTPError(http.StatusServiceUnavailable, "El menu está desactualizado.")
-	}
-
-	wd := time.Now().Weekday()
-
-	if int(wd) >= len(menu.Menu) {
-		return echo.NewHTTPError(http.StatusBadRequest, "Mañana no hay clase.")
 	}
 
 	if !isCacheValid(menu.From, menu.To, time.Now()) {

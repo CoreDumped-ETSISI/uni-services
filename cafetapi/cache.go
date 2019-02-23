@@ -81,6 +81,8 @@ func (s *server) updateCache(logger echo.Logger) func() {
 			return
 		}
 
+		logger.Print("Cache updated successfuly")
+
 		s.cache = &menuCache{
 			LastFetch:   menu,
 			FetchURL:    pdfURL,
