@@ -53,7 +53,7 @@ def get_events_job():
     global cachedEvents
 
     news = scrapper.events_json_scraper()
-    news = do_job('events', scrapper.events_json_scraper)
+    news = do_job('eventos', scrapper.events_json_scraper)
     cachedEvents = news
 
 def get_avisos_job():
