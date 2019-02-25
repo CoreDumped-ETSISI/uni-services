@@ -21,11 +21,19 @@ class Horario(object):
 
         resp.body = json.dumps(horario, ensure_ascii=False)
 
+class Grupos(object):
+    def on_get(self, req, resp):
+        horario = cache.cachedHorario
+
+        resp.body = json.dumps(list(horario.keys()), ensure_ascii=False)
 
 print('Starting up!')
 cache.start()
 
 app = falcon.API()
 
-app.add_route('/horario', Horario())
-app.add_route('/horario/{grupo}', Horario())
+h = Horario()
+
+app.add_route('/horario', h)
+app.add_route('/horario/{grupo}', h)
+app.add_route('/grupos', Grupos())

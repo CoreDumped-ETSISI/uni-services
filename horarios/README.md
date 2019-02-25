@@ -7,4 +7,5 @@
 ````
 GET /horario
 GET /horario/{GRUPO}
+GET /grupos
 ````
