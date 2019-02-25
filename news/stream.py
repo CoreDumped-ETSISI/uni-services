@@ -37,7 +37,7 @@ def do_job(feed, func):
         newsToSend.append(n)
     
     for n in newsToSend:
-        r.publish('UNIVERISTY_' + feed.upper() + '_CHANNEL', json.dumps(n, ensure_ascii=False))
+        r.publish('UNIVERSITY_' + feed.upper() + '_CHANNEL', json.dumps(n, ensure_ascii=False))
 
     print("Published " + str(len(newsToSend)) + " " + feed.upper() + " stories.")
 
