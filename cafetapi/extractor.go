@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -8,7 +9,8 @@ import (
 	"time"
 )
 
-var linkre = regexp.MustCompile(`\/sites\/default\/files\/cafeteria\/menu_campus(.*?).pdf`)
+var linkre = regexp.MustCompile(`\/sites\/default\/files\/(.*?)menu_campus(.*?).pdf`)
+var ErrLinkNotFound = errors.New("No se ha podido encontrar el link")
 
 func getLatestPdfURL() (string, error) {
 	client := &http.Client{
@@ -27,5 +29,11 @@ func getLatestPdfURL() (string, error) {
 		return "", err
 	}
 
-	return fmt.Sprintf("https://www.etsisi.upm.es%s", linkre.FindString(string(b))), nil
+	url := linkre.FindString(string(b))
+
+	if url == "" {
+		return "", ErrLinkNotFound
+	}
+
+	return fmt.Sprintf("https://www.etsisi.upm.es%s", url), nil
 }
