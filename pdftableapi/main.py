@@ -36,7 +36,7 @@ def parsetable():
     if len(tables) == 0:
         return jsonify({
             'message': 'no tables found'
-        }), 401
+        }), 404
 
     table_results = []
 
