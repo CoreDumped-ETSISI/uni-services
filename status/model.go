@@ -3,7 +3,6 @@ package main
 import "time"
 
 type serviceStatus struct {
-	ID             string    `json:"id"`
 	Name           string    `json:"name"`
 	URL            string    `json:"url"`
 	Up             bool      `json:"up"`
