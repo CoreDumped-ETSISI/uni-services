@@ -31,8 +31,9 @@ func main() {
 	// Keep cache warm
 	c := cron.New()
 	updateFunc := s.updateCache(e.Logger)
-	c.AddFunc(fmt.Sprintf("0 0 */%v * * 2-5", CacheTimeout/2), updateFunc) // General, 2hr, keep cache warm
-	c.AddFunc("0 */15 * * * 1", updateFunc)                                // Try to get latest one on monday, every 15 min
+	c.AddFunc(fmt.Sprintf("0 0 */%v * * 3-5", CacheTimeout/2), updateFunc) // General, 2hr, keep cache warm
+	c.AddFunc("0 */15 * * * 1-2", updateFunc)                                // Try to get latest one on monday-tuesday, every 15 min
+	
 
 	c.Start()
 
