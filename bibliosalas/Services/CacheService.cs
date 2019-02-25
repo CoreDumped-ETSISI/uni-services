@@ -14,25 +14,16 @@ namespace bibliosalas.Services
 {
     public class CacheService : BackgroundService
     {
-        private static object _bibLock = new object();
         private static Biblioteca _biblioteca;
         public static Biblioteca Biblioteca
         {
             get
             {
-                Biblioteca bib = null;
-                lock (_bibLock)
-                {
-                    bib = _biblioteca;
-                }
-                return bib;
+                return _biblioteca;
             }
             private set
             {
-                lock (_bibLock)
-                {
-                    _biblioteca = value;
-                }
+                _biblioteca = value;
             }
         }
 
