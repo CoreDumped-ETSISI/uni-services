@@ -29,7 +29,7 @@ def parsetable():
     try:        
         tables = camelot.read_pdf(tmpname, **settings)
     except:
-        return jsonify({'message': 'internal server error'}), 501
+        return jsonify({'message': 'internal server error'}), 500
     finally:
         os.remove(tmpname)
     
