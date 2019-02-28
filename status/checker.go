@@ -6,28 +6,28 @@ import (
 	"time"
 )
 
-func checkEndpoint(URL string) (bool, int) {
+func checkEndpoint(URL string) (bool, int, error) {
 	client := &http.Client{
-		Timeout: 5 * time.Second,
+		Timeout: 10 * time.Second,
 	}
 
 	resp, err := client.Get(URL)
 
 	if err != nil {
-		return false, 0
+		return false, 0, err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode/100 == 5 || resp.StatusCode/100 == 4 {
-		return false, resp.StatusCode
+		return false, resp.StatusCode, nil
 	}
 
-	return true, resp.StatusCode
+	return true, resp.StatusCode, nil
 }
 
 func (s *server) checkService(service *serviceStatus) {
-	ok, status := checkEndpoint(service.URL)
+	ok, status, lastErr := checkEndpoint(service.URL)
 
 	lastStatus := service.CircuitBreaker
 	newStatus := lastStatus
@@ -72,6 +72,7 @@ func (s *server) checkService(service *serviceStatus) {
 
 	service.LastCheck = time.Now()
 	service.LastStatusCode = status
+	service.LastError = lastErr
 
 	// Save data
 	service.CircuitBreaker = newStatus
@@ -86,10 +87,11 @@ func (s *server) checkAllServices() {
 func (s *server) launchPrecheck() {
 	s.log.Print("Starting launch precheck...")
 	for i := range s.status {
-		ok, status := checkEndpoint(s.status[i].URL)
+		ok, status, lastErr := checkEndpoint(s.status[i].URL)
 
 		s.status[i].LastCheck = time.Now()
 		s.status[i].LastStatusCode = status
+		s.status[i].LastError = lastErr
 
 		// Save data
 		if ok {

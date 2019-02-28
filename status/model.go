@@ -8,6 +8,7 @@ type serviceStatus struct {
 	Up             bool      `json:"up"`
 	LastStatusCode int       `json:"lastStatusCode"`
 	LastCheck      time.Time `json:"lastCheck"`
+	LastError      error     `json:"lastError"`
 	Infra          bool      `json:"infra"`
 	CircuitBreaker int       `json:"-"`
 }
