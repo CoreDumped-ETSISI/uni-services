@@ -33,9 +33,17 @@ func (s *server) checkService(service *serviceStatus) {
 	newStatus := lastStatus
 
 	if ok {
-		newStatus--
+		if service.Up {
+			newStatus = 0
+		} else {
+			newStatus--
+		}
 	} else {
-		newStatus++
+		if service.Up {
+			newStatus++
+		} else {
+			newStatus = s.circuitBreakLimit
+		}
 	}
 
 	if newStatus < 0 {
