@@ -10,6 +10,7 @@ r = None
 cachedNews = []
 cachedEvents = []
 cachedAvisos = []
+cachedCore = []
 
 def do_job(feed, func):
     print('Getting ' + feed + '...')
@@ -62,6 +63,12 @@ def get_avisos_job():
     news = do_job('avisos', scrapper.avisos_json_scraper)
     cachedAvisos = news
 
+def get_core_job():
+    global cachedCore
+
+    news = do_job('coredumped', scrapper.core_dumped_scrapper)
+    cachedCore = news
+
 def schedule_bg():
     print("Starting jobs...")
 
@@ -75,10 +82,12 @@ def schedule_bg():
     get_news_job()
     get_events_job()
     get_avisos_job()
+    get_core_job()
 
     schedule.every(10).minutes.do(get_news_job)
     schedule.every(10).minutes.do(get_events_job)
     schedule.every(10).minutes.do(get_avisos_job)
+    schedule.every(10).minutes.do(get_core_job)
 
     while True:
         schedule.run_pending()

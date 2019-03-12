@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+import feedparser
 
 def news_json_scraper():
     html = requests.get("https://etsisi.upm.es/noticias")
@@ -52,6 +53,18 @@ def avisos_json_scraper():
     # avisos.append(more)
 
     return avisos
+
+def core_dumped_scrapper():
+    feed = feedparser.parse('https://coredumped.es/feed/')
+
+    allentries = []
+    for entry in feed.entries:
+        event = {}
+        event["text"] = entry.title # + '\n\n' + entry.description
+        event["a-link"] = '<a href="' + entry.link + '">' + entry.title + '</a>'
+        event["link"] = entry.link
+        allentries.append(event)
+    return allentries
 
 if __name__ == '__main__':
     print('Ultimas noticias:')

@@ -21,6 +21,12 @@ class DirectAvisos(object):
 
         resp.body = json.dumps(data, ensure_ascii=False)
 
+class DirectCore(object):
+    def on_get(self, req, resp):        
+        data = stream.cachedCore
+
+        resp.body = json.dumps(data, ensure_ascii=False)
+
 print('Starting up!')
 stream.start()
 
@@ -29,3 +35,4 @@ app = falcon.API()
 app.add_route('/news', DirectNews())
 app.add_route('/events', DirectEvents())
 app.add_route('/avisos', DirectAvisos())
+app.add_route('/coredumped', DirectCore())

@@ -3,3 +3,4 @@ requests
 falcon
 schedule
 redis
+feedparser
