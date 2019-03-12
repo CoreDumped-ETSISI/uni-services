@@ -27,6 +27,9 @@ namespace bibliosalas.Controllers
         {
             var bib = CacheService.Biblioteca;
 
+            if (bib == null)
+                return StatusCode(503);
+
             return bib;
         }
 

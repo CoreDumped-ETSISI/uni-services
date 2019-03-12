@@ -47,9 +47,27 @@ namespace bibliosalas.Services
                 {
                     var cell = row.Values[j];
 
-                    var r = cell.EffectiveFormat.BackgroundColor.Red;
-                    var g = cell.EffectiveFormat.BackgroundColor.Green;
-                    var b = cell.EffectiveFormat.BackgroundColor.Blue;
+                    float r, g, b;
+
+                    if (cell.EffectiveFormat != null && cell.EffectiveFormat.BackgroundColor != null)
+                    {
+                        r = cell.EffectiveFormat.BackgroundColor.Red.Value;
+                        g = cell.EffectiveFormat.BackgroundColor.Green.Value;
+                        b = cell.EffectiveFormat.BackgroundColor.Blue.Value;
+                    }
+                    else if (cell.UserEnteredFormat != null && cell.UserEnteredFormat.BackgroundColor != null)
+                    {
+                        r = cell.UserEnteredFormat.BackgroundColor.Red.Value;
+                        g = cell.UserEnteredFormat.BackgroundColor.Green.Value;
+                        b = cell.UserEnteredFormat.BackgroundColor.Blue.Value;
+                    }
+                    else
+                    {
+                        r = 1;
+                        g = 1;
+                        b = 1;
+                    }
+
 
                     bool free = r == g && g == b;
                     biblio.Salas[j].OccupiedMap[i] = !free;

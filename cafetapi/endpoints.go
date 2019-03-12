@@ -64,6 +64,10 @@ func (s *server) getTomorrowsMenu(c echo.Context) error {
 }
 
 func (s *server) getStats(c echo.Context) error {
+	if s.cache == nil {
+		return c.String(503, "no cache")
+	}
+
 	return c.JSON(200, s.cache)
 }
 
