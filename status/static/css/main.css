@@ -1,0 +1,26 @@
+.bar-holder {
+    display: flex;
+    justify-content: space-evenly;
+    flex-direction: row;
+    width: 100%;
+    padding: 0 0.75rem;
+    margin: 0.5rem 0;
+}
+
+.day-bar {
+    height: 34px;
+    margin: 0 1px;
+    flex-grow: 1;
+}
+
+.day-bar-up {
+    background-color: rgb(47, 204, 102);
+}
+
+.day-bar-down {
+    background-color: rgb(209, 39, 51);
+}
+
+.day-bar-no-data {
+    background-color: rgb(130, 130, 130);
+}

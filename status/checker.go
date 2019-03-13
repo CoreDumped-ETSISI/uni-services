@@ -84,6 +84,32 @@ func (s *server) checkService(service *serviceStatus) {
 
 	// Save data
 	service.CircuitBreaker = newStatus
+	if err = s.saveServiceStatus(service); err != nil {
+		s.log.Print("Error when saving to mongo", err)
+	}
+}
+
+func (s *server) saveServiceStatus(service *serviceStatus) error {
+	sesh := s.mongo.Clone()
+	defer sesh.Close()
+
+	col := sesh.DB("etsisi-telegram-bot").C("status_history")
+
+	var errText string
+
+	if service.LastError != nil {
+		errText = service.LastError.Error()
+	}
+
+	err := col.Insert(serviceHistory{
+		Timestamp:  time.Now(),
+		Up:         service.Up,
+		URL:        service.URL,
+		StatusCode: service.LastStatusCode,
+		Error:      errText,
+	})
+
+	return err
 }
 
 func (s *server) checkAllServices() {

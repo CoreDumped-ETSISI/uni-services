@@ -15,4 +15,5 @@ COPY --from=build-env /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs
 
 WORKDIR /app
 COPY --from=build-env /go/src/github.com/guad/status/app /app/
+ADD static/ static
 ENTRYPOINT ./app

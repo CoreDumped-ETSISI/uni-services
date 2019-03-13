@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"os"
 	"strconv"
+	"time"
+
+	"github.com/globalsign/mgo"
 
 	"github.com/labstack/echo"
 
@@ -12,6 +15,7 @@ import (
 
 type server struct {
 	redis             *redis.Client
+	mongo             *mgo.Session
 	status            []*serviceStatus
 	circuitBreakLimit int
 	log               echo.Logger
@@ -48,6 +52,24 @@ func New() *server {
 		Password: os.Getenv("REDIS_PASS"),
 		DB:       redisb,
 	})
+
+	info := &mgo.DialInfo{
+		Addrs:    []string{os.Getenv("MONGO_HOST")},
+		Database: os.Getenv("MONGO_DB"),
+		Username: os.Getenv("MONGO_USER"),
+		Password: os.Getenv("MONGO_PASS"),
+		Timeout:  10 * time.Second,
+	}
+
+	database, err := mgo.DialWithInfo(info)
+
+	if err != nil {
+		panic(err)
+	}
+
+	database.DB("etsisi-telegram-bot").C("status_history").EnsureIndexKey("url")
+
+	s.mongo = database
 
 	return s
 }
