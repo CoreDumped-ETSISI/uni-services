@@ -202,15 +202,30 @@ class UptimeMetric extends React.Component {
     }
 
     _calculateUptime() {
-        let total = this.props.history.length;
-        let up = 0;
+        let start = this.props.history[0].unix;
+        let end = this.props.history[this.props.history.length - 1].unix;
+        let delta = end - start;
+
+        let downtime = 0;
+
+        let lastStatus = this.props.history[0].up;
+        let downtimeStart = 0;
         for (let p of this.props.history) {
-            if (p.up) {
-                up++;
+            if (p.up ^ lastStatus) {
+                if (lastStatus) {
+                    downtimeStart = p.unix;
+                } else {
+                    downtime += (p.unix - downtimeStart)
+                    downtimeStart = 0;
+                }
             }
+            lastStatus = p.up;
         }
 
-        return ((up / total) * 100).toString() + '%';
+        if (downtimeStart) downtime += (end - downtimeStart);
+        downtime = delta - downtime;
+
+        return Number((100 * downtime / delta).toFixed(6)).toString() + '%';
     }
 
     render() {
