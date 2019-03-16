@@ -27,7 +27,9 @@ func checkEndpoint(URL string) (bool, int, error) {
 }
 
 func (s *server) checkService(service *serviceStatus) {
+	start := time.Now()
 	ok, status, lastErr := checkEndpoint(service.URL)
+	delta := time.Now().Sub(start)
 
 	lastStatus := service.CircuitBreaker
 	newStatus := lastStatus
@@ -81,6 +83,7 @@ func (s *server) checkService(service *serviceStatus) {
 	service.LastCheck = time.Now()
 	service.LastStatusCode = status
 	service.LastError = lastErr
+	service.LastLatency = delta.Seconds()
 
 	// Save data
 	service.CircuitBreaker = newStatus
@@ -107,6 +110,7 @@ func (s *server) saveServiceStatus(service *serviceStatus) error {
 		URL:        service.URL,
 		StatusCode: service.LastStatusCode,
 		Error:      errText,
+		Latency:    service.LastLatency,
 	})
 
 	return err

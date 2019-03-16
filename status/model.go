@@ -10,6 +10,7 @@ type serviceStatus struct {
 	LastCheck      time.Time `json:"lastCheck"`
 	LastError      error     `json:"lastError"`
 	Infra          bool      `json:"infra"`
+	LastLatency    float64   `json:"latency"`
 	CircuitBreaker int       `json:"-"`
 }
 
@@ -24,4 +25,5 @@ type serviceHistory struct {
 	Up         bool      `json:"up" bson:"up"`
 	StatusCode int       `json:"statusCode" bson:"statusCode"`
 	Error      string    `json:"error,omitempty" bson:"error"`
+	Latency    float64   `json:"latency"`
 }
