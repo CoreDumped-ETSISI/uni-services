@@ -73,6 +73,7 @@ class PastIncidents extends React.Component {
             let incidents = [];
             
             for (let url in h) {
+                if (!(url in this.props.pages)) continue;
                 let index = url in historyIndices ? historyIndices[url] : 0;
                 let prevStatus = null;
                 let prevTime = null;
@@ -116,7 +117,7 @@ class PastIncidents extends React.Component {
     }
 
     render() {
-        if (!this.props.history) {
+        if (!this.props.history || !this.props.pages) {
             return <span></span>
         }
 
