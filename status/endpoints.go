@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/labstack/echo/middleware"
+
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 	"github.com/labstack/echo"
@@ -52,6 +54,8 @@ func (s *server) getHistory(c echo.Context) error {
 }
 
 func (s *server) route(e *echo.Echo) {
+	e.Use(middleware.Logger())
+
 	e.GET("/api/status", s.getStatus)
 	e.GET("/api/history", s.getHistory)
 
