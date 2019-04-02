@@ -17,6 +17,7 @@ func TestIsCacheValid(t *testing.T) {
 
 		{1, 5, 6, 0},
 		{26, 2, 15, 0},
+		{0, 0, 12, 1},
 	}
 
 	for _, test := range testcases {

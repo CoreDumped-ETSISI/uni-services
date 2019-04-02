@@ -13,6 +13,12 @@ type menuCache struct {
 }
 
 func isCacheValid(from, to int, date time.Time) bool {
+	// Month parsing failed. Return it anyways (just in case)
+	// TODO: Alert something went wrong?
+	if from == to {
+		return true
+	}
+
 	now := date.Day()
 
 	if from > to { // Fin de mes

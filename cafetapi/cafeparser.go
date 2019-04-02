@@ -19,13 +19,19 @@ type CafeMenuDia struct {
 }
 
 var monthre = regexp.MustCompile(`MES: ([A-Z\-]+)DEL `)
+var monthre2 = regexp.MustCompile(`MES: ([A-Z\-]+)`)
 var fromre = regexp.MustCompile(`DEL D[ÍI]A: (\d{1,2})`)
 var tore = regexp.MustCompile(`AL D[ÍI]A: (\d{1,2})`)
 
 func getMetadata(data string) (mes string, desde int, hasta int) {
 	month := monthre.FindStringSubmatch(data)
+	month2 := monthre2.FindStringSubmatch(data)
 	from := fromre.FindStringSubmatch(data)
 	to := tore.FindStringSubmatch(data)
+
+	if len(month) == 0 {
+		month = month2
+	}
 
 	if len(month) > 0 && len(from) > 0 && len(to) > 0 {
 		mes = month[1]
