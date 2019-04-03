@@ -90,7 +90,11 @@ def schedule_bg():
     schedule.every(10).minutes.do(get_core_job)
 
     while True:
-        schedule.run_pending()
+        try:
+            schedule.run_pending()
+        except Exception as e:
+            print('Caught unexpected exception')
+            print(e)
         time.sleep(1)
 
 def start():

@@ -18,7 +18,11 @@ def schedule_bg():
     schedule.every(24).hours.do(get_horarios_job)
 
     while True:
-        schedule.run_pending()
+        try:
+            schedule.run_pending()
+        except Exception as e:
+            print('Caught unexpected exception')
+            print(e)
         time.sleep(600)
 
 def start():
