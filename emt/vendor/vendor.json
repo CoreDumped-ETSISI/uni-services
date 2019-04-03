@@ -1,0 +1,68 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "88Jlb//LWeA5zAisnI3F2iyUa04=",
+			"path": "github.com/labstack/echo",
+			"revision": "ba1891b3dc1fc5548330e580c51157ea5eb6604f",
+			"revisionTime": "2018-10-15T07:31:26Z"
+		},
+		{
+			"checksumSHA1": "Yz8nRvgJR9qN9OORCUQKc4eHC7Q=",
+			"path": "github.com/labstack/gommon/color",
+			"revision": "2a618302b929cc20862dda3aa6f02f64dbe740dd",
+			"revisionTime": "2018-07-08T00:26:42Z"
+		},
+		{
+			"checksumSHA1": "liFF05famrCuQTrpAjLuhJHd7+A=",
+			"path": "github.com/labstack/gommon/log",
+			"revision": "2a618302b929cc20862dda3aa6f02f64dbe740dd",
+			"revisionTime": "2018-07-08T00:26:42Z"
+		},
+		{
+			"checksumSHA1": "AtXpiR7Gtq5cF+6eUAH+LzupMts=",
+			"path": "github.com/mattn/go-colorable",
+			"revision": "efa589957cd060542a26d2dd7832fd6a6c6c3ade",
+			"revisionTime": "2018-03-10T13:32:14Z"
+		},
+		{
+			"checksumSHA1": "LkbotKu3JQxXEZZ9P40yhnFOycY=",
+			"path": "github.com/mattn/go-isatty",
+			"revision": "3fb116b820352b7f0c281308a4d6250c22d94e27",
+			"revisionTime": "2018-08-30T10:17:45Z"
+		},
+		{
+			"checksumSHA1": "x6+Vi9WumwYUrK8ZUmkGLDgOLtc=",
+			"origin": "github.com/valyala/fasttemplate/vendor/github.com/valyala/bytebufferpool",
+			"path": "github.com/valyala/bytebufferpool",
+			"revision": "dcecefd839c4193db0d35b88ec65b4c12d360ab0",
+			"revisionTime": "2017-02-24T21:24:29Z"
+		},
+		{
+			"checksumSHA1": "UHztphFBVZKyLNbrMDVPM0VdJ60=",
+			"path": "github.com/valyala/fasttemplate",
+			"revision": "dcecefd839c4193db0d35b88ec65b4c12d360ab0",
+			"revisionTime": "2017-02-24T21:24:29Z"
+		},
+		{
+			"checksumSHA1": "31Q46st1pd0VJJmD7yQFHKB8jrE=",
+			"path": "golang.org/x/crypto/acme",
+			"revision": "8dd112bcdc25174059e45e07517d9fc663123347",
+			"revisionTime": "2019-02-28T09:13:53Z"
+		},
+		{
+			"checksumSHA1": "Yjacru/DE9yXphaefh67NrjNgAk=",
+			"path": "golang.org/x/crypto/acme/autocert",
+			"revision": "8dd112bcdc25174059e45e07517d9fc663123347",
+			"revisionTime": "2019-02-28T09:13:53Z"
+		},
+		{
+			"checksumSHA1": "CUrUhDNNrITg4lfBvGWlYMTErIM=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "572b51eaf7221935bdec454796989ba8318fa6f3",
+			"revisionTime": "2019-03-07T13:06:33Z"
+		}
+	],
+	"rootPath": "github.com/CoreDumped-ETSISI/uni-services/emt"
+}
