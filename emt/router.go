@@ -2,7 +2,9 @@ package main
 
 import (
 	"strconv"
+	"sync"
 
+	"github.com/CoreDumped-ETSISI/uni-services/emt/api"
 	"github.com/labstack/echo"
 )
 
@@ -27,15 +29,22 @@ func (s *server) getEstimatesForStop(c echo.Context) error {
 
 // GET /api/stop/
 func (s *server) getEstimatesForUni(c echo.Context) error {
-	condeid := 4281
-	sierraid := 4702
-
-	busc, errs := s.emt.GetStopEstimates(condeid)
-	buss, errc := s.emt.GetStopEstimates(sierraid)
-
-	if errs != nil && errc != nil {
-		return errs
+	f := func(id int, o *[]api.Bus, wg *sync.WaitGroup) {
+		*o, _ = s.emt.GetStopEstimates(id)
+		wg.Done()
 	}
+
+	var busc []api.Bus
+	var buss []api.Bus
+
+	var wg sync.WaitGroup
+
+	wg.Add(2)
+
+	go f(4281, &busc, &wg)
+	go f(4702, &buss, &wg)
+
+	wg.Wait()
 
 	return c.JSON(200, UniversityStops{
 		SentidoSierra: buss,
