@@ -36,19 +36,22 @@ func (s *server) getEstimatesForUni(c echo.Context) error {
 
 	var busc []api.Bus
 	var buss []api.Bus
+	var busp []api.Bus
 
 	var wg sync.WaitGroup
 
-	wg.Add(2)
+	wg.Add(3)
 
 	go f(4281, &busc, &wg)
 	go f(4702, &buss, &wg)
+	go f(2712, &busp, &wg)
 
 	wg.Wait()
 
 	return c.JSON(200, UniversityStops{
 		SentidoSierra: buss,
 		SentidoConde:  busc,
+		Puente:        busp,
 	})
 }
 
