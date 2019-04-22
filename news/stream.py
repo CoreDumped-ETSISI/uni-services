@@ -36,9 +36,14 @@ def do_job(feed, func):
         if n['link'] == lastNews:
             break
         newsToSend.append(n)
+
+    if len(newsToSend) == len(news):
+        # Assume the format changed, do nothing
+        return news
     
     for n in newsToSend:
         r.publish('UNIVERSITY_' + feed.upper() + '_CHANNEL', json.dumps(n, ensure_ascii=False))
+        break # Send only one at a time
 
     print("Published " + str(len(newsToSend)) + " " + feed.upper() + " stories.")
 
