@@ -87,7 +87,10 @@ class PastIncidents extends React.Component {
                         let time = new Date(prevTime).toLocaleTimeString();
                         let text = prevStatus ? "Ha vuelto" : "Ha caído";
                         let name = this.props.pages[url].name;
-                        incidents.unshift(<li>{time + ': ' + text + ' ' + name}</li>);
+                        incidents.unshift({
+                            "time": prevTime,
+                            "el": <li>{time + ': ' + text + ' ' + name}</li>
+                        });
                     }
                     
                     prevStatus = h[url][index].up;
@@ -101,7 +104,8 @@ class PastIncidents extends React.Component {
             let daytext = <p className="text-muted">No se reportaron incidencias.</p>;
 
             if (incidents.length) {
-                daytext = <ul>{incidents}</ul>;
+                incidents.sort((a, b) => new Date(a.time) - new Date(b.time));
+                daytext = <ul>{incidents.map((v) => v.el)}</ul>;
             }
 
             divs.push(
@@ -226,12 +230,12 @@ class UptimeMetric extends React.Component {
         if (downtimeStart) downtime += (end - downtimeStart);
         downtime = delta - downtime;
 
-        return Number((100 * downtime / delta).toFixed(6)).toString() + '%';
+        return Number((100 * downtime / delta).toFixed(3)).toString() + '%';
     }
 
     render() {
         if (!this.props.history) {
-            return <span></span>
+            return <span className="text-muted">Cargando...</span>
         }
 
         let uptime = this._calculateUptime();

@@ -43,7 +43,10 @@ func (s *server) getHistory(c echo.Context) error {
 	days := map[string]int{}
 
 	for i := range his {
-		if days[his[i].URL] != his[i].Timestamp.Day() || !his[i].Up {
+		if !his[i].Up {
+			days[his[i].URL] = -1
+			thinhis = append(thinhis, &his[i])
+		} else if days[his[i].URL] != his[i].Timestamp.Day() {
 			days[his[i].URL] = his[i].Timestamp.Day()
 			thinhis = append(thinhis, &his[i])
 		}
