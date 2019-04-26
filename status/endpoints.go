@@ -50,7 +50,17 @@ func (s *server) getHistory(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(200, his)
+	var thinhis []*serviceHistory
+	days := map[string]int{}
+
+	for i := range his {
+		if days[his[i].URL] != his[i].Timestamp.Day() || !his[i].Up {
+			days[his[i].URL] = his[i].Timestamp.Day()
+			thinhis = append(thinhis, &his[i])
+		}
+	}
+
+	return c.JSON(200, thinhis)
 }
 
 func (s *server) route(e *echo.Echo) {
