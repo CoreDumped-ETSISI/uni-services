@@ -20,10 +20,10 @@ type redisMessage struct {
 }
 
 type serviceHistory struct {
-	Timestamp  time.Time `json:"timestamp" bson:"_id"`
-	URL        string    `json:"url" bson:"url"`
-	Up         bool      `json:"up" bson:"up"`
-	StatusCode int       `json:"statusCode" bson:"statusCode"`
-	Error      string    `json:"error,omitempty" bson:"error"`
-	Latency    float64   `json:"latency"`
+	Timestamp  time.Time `json:"timestamp" bson:"_id" sql:"timestamp,pk"`
+	URL        string    `json:"url" bson:"url" sql:"url,pk"`
+	Up         bool      `json:"up" bson:"up" sql:"up"`
+	StatusCode int       `json:"statusCode" bson:"statusCode" sql:"status"`
+	Error      string    `json:"error,omitempty" bson:"error" sql:"error"`
+	Latency    float64   `json:"latency" sql:"latency"`
 }

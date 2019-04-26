@@ -4,18 +4,18 @@ import (
 	"encoding/json"
 	"os"
 	"strconv"
-	"time"
 
-	"github.com/globalsign/mgo"
+	"github.com/go-pg/pg/orm"
 
 	"github.com/labstack/echo"
 
+	"github.com/go-pg/pg"
 	"github.com/go-redis/redis"
 )
 
 type server struct {
 	redis             *redis.Client
-	mongo             *mgo.Session
+	postgres          *pg.DB
 	status            []*serviceStatus
 	circuitBreakLimit int
 	log               echo.Logger
@@ -53,23 +53,34 @@ func New() *server {
 		DB:       redisb,
 	})
 
-	info := &mgo.DialInfo{
-		Addrs:    []string{os.Getenv("MONGO_HOST")},
-		Database: os.Getenv("MONGO_DB"),
-		Username: os.Getenv("MONGO_USER"),
-		Password: os.Getenv("MONGO_PASS"),
-		Timeout:  10 * time.Second,
-	}
+	// info := &mgo.DialInfo{
+	// 	Addrs:    []string{os.Getenv("MONGO_HOST")},
+	// 	Database: os.Getenv("MONGO_DB"),
+	// 	Username: os.Getenv("MONGO_USER"),
+	// 	Password: os.Getenv("MONGO_PASS"),
+	// 	Timeout:  10 * time.Second,
+	// }
 
-	database, err := mgo.DialWithInfo(info)
+	// database, err := mgo.DialWithInfo(info)
 
-	if err != nil {
-		panic(err)
-	}
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	database.DB("etsisi-telegram-bot").C("status_history").EnsureIndexKey("url")
+	// database.DB("etsisi-telegram-bot").C("status_history").EnsureIndexKey("url")
 
-	s.mongo = database
+	//s.mongo = database
+
+	s.postgres = pg.Connect(&pg.Options{
+		Addr:     os.Getenv("DB_HOST"),
+		Database: os.Getenv("DB_DB"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASS"),
+	})
+
+	s.postgres.CreateTable(&serviceHistory{}, &orm.CreateTableOptions{
+		IfNotExists: true,
+	})
 
 	return s
 }

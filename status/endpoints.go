@@ -6,8 +6,6 @@ import (
 
 	"github.com/labstack/echo/middleware"
 
-	"github.com/globalsign/mgo"
-	"github.com/globalsign/mgo/bson"
 	"github.com/labstack/echo"
 )
 
@@ -19,24 +17,15 @@ func (s *server) getHistory(c echo.Context) error {
 	limit := c.QueryParam("limit")
 	last := c.QueryParam("last")
 
-	sesh := s.mongo.Clone()
-	defer sesh.Close()
-
-	col := sesh.DB("etsisi-telegram-bot").C("status_history")
-
 	var his []serviceHistory
 
-	var q *mgo.Query
+	q := s.postgres.Model(&his)
 
 	if last != "" {
 		dur, _ := time.ParseDuration(last)
-		q = col.Find(bson.M{
-			"_id": bson.M{
-				"$gte": time.Now().Add(-dur),
-			},
-		})
-	} else {
-		q = col.Find(nil)
+		t := time.Now().Add(-dur)
+
+		q = q.Where("timestamp > ?", t)
 	}
 
 	if limit != "" {
@@ -44,7 +33,7 @@ func (s *server) getHistory(c echo.Context) error {
 		q = q.Limit(l)
 	}
 
-	err := q.All(&his)
+	err := q.Select(&his)
 
 	if err != nil {
 		return err
