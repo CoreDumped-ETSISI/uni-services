@@ -164,6 +164,10 @@ class UptimeBar extends React.Component {
 
             let status = 'day-bar-no-data';
 
+            let lastStatus = null;
+            let lastTime = null;
+            let totalDown = 0;
+
             while (historyIndex < h.length &&
                 h[historyIndex].unix > unix)
             {
@@ -172,12 +176,48 @@ class UptimeBar extends React.Component {
                 } else if (status != 'day-bar-down') {
                     status = 'day-bar-up';
                 }
+
+                if (lastStatus == null) {
+                    lastStatus = h[historyIndex].up;
+                    if (!lastStatus) {
+                        lastTime = h[historyIndex].unix;
+                    }
+                } else if (!lastStatus && h[historyIndex].up) {
+                    lastStatus = true
+                    totalDown += lastTime - h[historyIndex].unix;
+                } else if (lastStatus && !h[historyIndex].up) {
+                    lastStatus = false;
+                    lastTime = h[historyIndex].unix;
+                }
                 
                 historyIndex++;
             }
 
+            if (lastStatus === false) {
+                totalDown += lastTime - day;
+            }
+
+            let title = day.toLocaleDateString();
+
+            if (totalDown) {
+                let seconds = totalDown / 1000;
+                let text = seconds.toString() + "s";
+
+                if (seconds > 60) {
+                    let minutes = seconds / 60;
+                    text = minutes.toFixed(0) + "m";
+
+                    if (minutes > 60) {
+                        let hours = minutes / 60;
+                        text = hours.toFixed(0) + "h";
+                    }
+                }
+
+                title += "\n\n" + text + " caídos.";
+            }
+
             divs.unshift(
-                <div className={"day-bar " + status} title={day.toLocaleDateString()} key={i}></div>
+                <div className={"day-bar " + status} title={title} key={i}></div>
             );
         }
 
