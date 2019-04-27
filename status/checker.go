@@ -156,7 +156,10 @@ func (s *server) invalidateCache() error {
 
 	t := time.Now().Add(-2160 * time.Hour)
 
-	err := s.postgres.Model(&his).Where("timestamp > ?", t).Select(&his)
+	err := s.postgres.Model(&his).
+		Where("timestamp > ?", t).
+		Order("timestamp ASC").
+		Select(&his)
 
 	if err != nil {
 		return err
