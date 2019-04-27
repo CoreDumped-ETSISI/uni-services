@@ -115,6 +115,12 @@ func (s *server) checkAllServices() {
 	for i := range s.status {
 		s.checkService(s.status[i])
 	}
+
+	err := s.invalidateCache()
+
+	if err != nil {
+		s.log.Error(err)
+	}
 }
 
 func (s *server) launchPrecheck() {
@@ -136,7 +142,42 @@ func (s *server) launchPrecheck() {
 		}
 	}
 
+	err := s.invalidateCache()
+
+	if err != nil {
+		panic(err)
+	}
+
 	s.log.Print("Precheck done.")
+}
+
+func (s *server) invalidateCache() error {
+	var his []serviceHistory
+
+	t := time.Now().Add(-2160 * time.Hour)
+
+	err := s.postgres.Model(&his).Where("timestamp > ?", t).Select(&his)
+
+	if err != nil {
+		return err
+	}
+
+	var thinhis []*serviceHistory
+	days := map[string]int{}
+
+	for i := range his {
+		if !his[i].Up {
+			days[his[i].URL] = -1
+			thinhis = append(thinhis, &his[i])
+		} else if days[his[i].URL] != his[i].Timestamp.Day() {
+			days[his[i].URL] = his[i].Timestamp.Day()
+			thinhis = append(thinhis, &his[i])
+		}
+	}
+
+	s.historyCache = thinhis
+
+	return nil
 }
 
 func (s *server) publishToRedis(service *serviceStatus, channel string) error {

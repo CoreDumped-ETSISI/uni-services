@@ -1,9 +1,6 @@
 package main
 
 import (
-	"strconv"
-	"time"
-
 	"github.com/labstack/echo/middleware"
 
 	"github.com/labstack/echo"
@@ -14,45 +11,7 @@ func (s *server) getStatus(c echo.Context) error {
 }
 
 func (s *server) getHistory(c echo.Context) error {
-	limit := c.QueryParam("limit")
-	last := c.QueryParam("last")
-
-	var his []serviceHistory
-
-	q := s.postgres.Model(&his)
-
-	if last != "" {
-		dur, _ := time.ParseDuration(last)
-		t := time.Now().Add(-dur)
-
-		q = q.Where("timestamp > ?", t)
-	}
-
-	if limit != "" {
-		l, _ := strconv.Atoi(limit)
-		q = q.Limit(l)
-	}
-
-	err := q.Select(&his)
-
-	if err != nil {
-		return err
-	}
-
-	var thinhis []*serviceHistory
-	days := map[string]int{}
-
-	for i := range his {
-		if !his[i].Up {
-			days[his[i].URL] = -1
-			thinhis = append(thinhis, &his[i])
-		} else if days[his[i].URL] != his[i].Timestamp.Day() {
-			days[his[i].URL] = his[i].Timestamp.Day()
-			thinhis = append(thinhis, &his[i])
-		}
-	}
-
-	return c.JSON(200, thinhis)
+	return c.JSON(200, s.historyCache)
 }
 
 func (s *server) route(e *echo.Echo) {
