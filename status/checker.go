@@ -112,6 +112,13 @@ func (s *server) saveServiceStatus(service *serviceStatus) error {
 }
 
 func (s *server) checkAllServices() {
+	ok, _, _ := checkEndpoint("https://google.com")
+
+	if !ok {
+		s.log.Error("Could not check services because there is no internet access")
+		return
+	}
+
 	for i := range s.status {
 		s.checkService(s.status[i])
 	}

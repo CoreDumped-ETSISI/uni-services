@@ -1,6 +1,6 @@
 var site = fermata.json('');
 
-function getCurrentStatus() {
+function getCurrentStatus(infra = false) {
     return new Promise(function(resolve, reject) {
         site.api.status.get(function(err, data) {
             if (err) {
@@ -10,7 +10,7 @@ function getCurrentStatus() {
 
             let pages = {};
             for (let site of data) {
-                if (site.infra) continue;
+                if (site.infra ^ infra) continue;
                 pages[site.url] = site;
             }
             resolve(pages);

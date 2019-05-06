@@ -381,16 +381,26 @@ class ServiceList extends React.Component {
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { pages: null, history: null, popup: null };
+        this.state = { pages: null, history: null, popup: null, infra: false };
     }
 
     componentWillMount() {
-        getCurrentStatus().then((p) => this.setState({ pages: p }));
+        getCurrentStatus(false).then((p) => this.setState({ pages: p }));
         getHistory().then((h) => this.setState({ history: h }));
     }
 
     _setPopup(popup) {
         this.setState({popup: popup});
+    }
+
+    _updateList(newstate) {
+        this.setState({ pages: null });
+        getCurrentStatus(newstate).then((p) => this.setState({ pages: p }));
+    }
+
+    _infraChange(e) {
+        this.setState({ infra: e.target.checked });
+        this._updateList(e.target.checked);
     }
 
     render() {
@@ -424,8 +434,12 @@ class App extends React.Component {
                         <ServiceList pages={this.state.pages} history={this.state.history} onPopup={this._setPopup} />
                     </div>
                 </div>
-
-
+                <div className="d-flex justify-content-center mt-2">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="infraSwitch" checked={this.state.infra} onChange={(e) => this._infraChange(e)}></input>
+                        <label class="custom-control-label" for="infraSwitch">Infraestructura</label>
+                    </div>
+                </div>
                 <h2 className="pt-4">Incidencias Pasadas</h2>
                 <PastIncidents history={this.state.history} pages={this.state.pages}/>
                 <IncidentPopup popup={this.state.popup}/>
