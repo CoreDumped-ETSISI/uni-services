@@ -1,51 +1,131 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"log"
 	"math"
 	"net/http"
-	"net/url"
 	"strconv"
-	"strings"
 	"time"
 )
 
-type EMT struct {
-	idClient string
-	passKey  string
+type emtSession struct {
+	tim   time.Time
+	exp   time.Time
+	token string
 }
 
-func New(idClient, passKey string) EMT {
-	return EMT{
-		idClient: idClient,
-		passKey:  passKey,
+type EMT struct {
+	email    string
+	password string
+	session  *emtSession
+}
+
+func New(email, password string) *EMT {
+	e := &EMT{
+		email:    email,
+		password: password,
+	}
+
+	go e.maintainSessionOpen()
+
+	return e
+}
+
+func (e *EMT) maintainSessionOpen() {
+	for {
+		err := e.RefreshSession()
+
+		if err != nil {
+			log.Println("Error when refreshing session: ", err)
+			time.Sleep(15 * time.Second)
+		} else {
+			time.Sleep(10 * time.Minute)
+		}
 	}
 }
 
-func (e EMT) GetStopEstimates(stop int) ([]Bus, error) {
-	api := "https://openbus.emtmadrid.es:9443/emt-proxy-server/last/media/GetEstimatesIncident.php"
-	data := url.Values{}
+func (e *EMT) RefreshSession() error {
+	c := &http.Client{}
+	r, err := http.NewRequest("GET", "https://openapi.emtmadrid.es/v1/mobilitylabs/user/login/", http.NoBody)
 
-	data.Set("idClient", e.idClient)
-	data.Set("passKey", e.passKey)
-	data.Set("idStop", strconv.Itoa(stop))
-	data.Set("Text_StopRequired_YN", "N")
-	data.Set("Audio_StopRequired_YN", "N")
-	data.Set("Text_EstimationsRequired_YN", "Y")
-	data.Set("Audio_EstimationsRequired_YN", "N")
-	data.Set("Audio_IncidencesRequired_YN", "N")
-	data.Set("Audio_StopRequired_YN", "N")
-	data.Set("cultureInfo", "EN")
+	if err != nil {
+		return err
+	}
+
+	r.Header.Set("email", e.email)
+	r.Header.Set("password", e.password)
+
+	resp, err := c.Do(r)
+
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return errors.New("Unsuccessful status code")
+	}
+
+	var d struct {
+		Data []struct {
+			Exp   int    `json: "tokenSecExpiration"`
+			Token string `json:"accessToken"`
+		} `json: "data"`
+	}
+
+	err = json.NewDecoder(resp.Body).Decode(&d)
+
+	if err != nil {
+		return err
+	}
+
+	s := &emtSession{
+		tim:   time.Now(),
+		exp:   time.Now().Add(time.Duration(d.Data[0].Exp) * time.Second),
+		token: d.Data[0].Token,
+	}
+
+	e.session = s
+
+	return nil
+}
+
+func (e *EMT) GetStopEstimates(stop int) ([]Bus, error) {
+	if e.session == nil {
+		return nil, errors.New("No session open")
+	}
+
+	api := fmt.Sprintf("https://openapi.emtmadrid.es/v1/transport/busemtmad/stops/%v/arrives/", stop)
+	var data struct {
+		CultureInfo         string `json: "cultureInfo`
+		StopRequired        string `json:"Text_StopRequired_YN"`
+		EstimationsRequired string `json:"Text_EstimationsRequired_YN"`
+		IncidencesRequired  string `json:"Text_IncidencesRequired_YN"`
+	}
+
+	data.CultureInfo = "ES"
+	data.StopRequired = "Y"
+	data.EstimationsRequired = "Y"
+	data.IncidencesRequired = "N"
+
+	b := &bytes.Buffer{}
+
+	_ = json.NewEncoder(b).Encode(data)
 
 	c := &http.Client{}
-	r, err := http.NewRequest("POST", api, strings.NewReader(data.Encode()))
+	r, err := http.NewRequest("POST", api, b)
 
 	if err != nil {
 		return nil, err
 	}
 
-	r.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	r.Header.Add("Content-Type", "application/json")
+	r.Header.Add("accessToken", e.session.token)
 
 	resp, err := c.Do(r)
 
@@ -68,7 +148,7 @@ func (e EMT) GetStopEstimates(stop int) ([]Bus, error) {
 	}
 
 	// First, check error code
-	errcode, err := strconv.Atoi(m["errorCode"].(string))
+	errcode, err := strconv.Atoi(m["code"].(string))
 
 	if errcode != 0 || err != nil {
 		return nil, fmt.Errorf("server responded unsuccessfuly. errorCode: %v, err: %v", errcode, err)
@@ -76,32 +156,21 @@ func (e EMT) GetStopEstimates(stop int) ([]Bus, error) {
 
 	var arrives []Bus
 
-	arrMap := m["arrives"].(map[string]interface{})["arriveEstimationList"].(map[string]interface{})
+	dataObj := m["data"].([]interface{})
+	arrData := dataObj[0].(map[string]interface{})
+	arrMap := arrData["Arrive"].([]interface{})
 
-	if arrive, ok := arrMap["arrive"].(map[string]interface{}); ok {
-		// Only one arrive.
+	for _, a := range arrMap {
+		arrive := a.(map[string]interface{})
 		arrives = append(arrives, Bus{
-			LineID:      arrive["lineId"].(string),
+			LineID:      arrive["line"].(string),
 			Destination: arrive["destination"].(string),
-			BusID:       arrive["busId"].(string),
-			TimeLeft:    time.Second * time.Duration((math.Min(25*60, arrive["busTimeLeft"].(float64)))),
-			Distance:    int(arrive["busDistance"].(float64)),
-			Latitude:    arrive["latitude"].(float64),
-			Longitude:   arrive["longitude"].(float64),
+			BusID:       arrive["bus"].(string),
+			TimeLeft:    time.Second * time.Duration((math.Min(25*60, arrive["estimateArrive"].(float64)))),
+			Distance:    int(arrive["DistanceBus"].(float64)),
+			Latitude:    arrive["geometry"].(map[string]interface{})["coordinates"].([]interface{})[0].(float64),
+			Longitude:   arrive["geometry"].(map[string]interface{})["coordinates"].([]interface{})[1].(float64),
 		})
-	} else if arriveList, ok := arrMap["arrive"].([]interface{}); ok {
-		for _, a := range arriveList {
-			arrive := a.(map[string]interface{})
-			arrives = append(arrives, Bus{
-				LineID:      arrive["lineId"].(string),
-				Destination: arrive["destination"].(string),
-				BusID:       arrive["busId"].(string),
-				TimeLeft:    time.Second * time.Duration((math.Min(25*60, arrive["busTimeLeft"].(float64)))),
-				Distance:    int(arrive["busDistance"].(float64)),
-				Latitude:    arrive["latitude"].(float64),
-				Longitude:   arrive["longitude"].(float64),
-			})
-		}
 	}
 
 	return arrives, nil
