@@ -156,8 +156,8 @@ class UptimeBar extends React.Component {
 
         for (let i = 0; i < len; i++) {
             let day = new Date();
-            day.setDate(day.getDate() - i);
-            day.setHours(0, 0, 0, 0);
+            day.setUTCDate(day.getUTCDate() - i);
+            day.setUTCHours(0, 0, 0, 0);
                         
             // Subtract days
             let unix = day.getTime();

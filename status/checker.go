@@ -173,22 +173,24 @@ func (s *server) invalidateCache() error {
 	}
 
 	var thinhis []*serviceHistory
-	days := map[string]int{}
 	prevs := map[string]*serviceHistory{}
 
 	for i := range his {
-		if !his[i].Up {
-			days[his[i].URL] = -1
-			if prevs[his[i].URL] != nil && prevs[his[i].URL].Up {
-				thinhis = append(thinhis, prevs[his[i].URL])
-			}
+		p := prevs[his[i].URL]
+		if p == nil {
 			thinhis = append(thinhis, &his[i])
-		} else if days[his[i].URL] != his[i].Timestamp.Day() {
-			days[his[i].URL] = his[i].Timestamp.Day()
-			thinhis = append(thinhis, &his[i])
+		} else if !his[i].Up && p.Up || his[i].Up && !p.Up {
+			thinhis = append(thinhis, p, &his[i])
+		} else if p.Timestamp.Day() != his[i].Timestamp.Day() {
+			thinhis = append(thinhis, p, &his[i])
 		}
 
 		prevs[his[i].URL] = &his[i]
+	}
+
+	// Add last points
+	for key := range prevs {
+		thinhis = append(thinhis, prevs[key])
 	}
 
 	s.historyCache = thinhis
