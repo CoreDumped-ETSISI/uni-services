@@ -12,7 +12,7 @@ func (s *server) getCafe(c echo.Context) error {
 	menu := s.getCachedCafeMenu()
 
 	if menu == nil {
-		return echo.NewHTTPError(http.StatusServiceUnavailable, "El menu está desactualizado.")
+		return echo.NewHTTPError(http.StatusServiceUnavailable, "No pudimos descargar el menú.")
 	}
 
 	return c.JSON(http.StatusOK, menu)
@@ -32,7 +32,7 @@ func (s *server) getTodaysMenu(c echo.Context) error {
 	menu := s.getCachedCafeMenu()
 
 	if menu == nil {
-		return echo.NewHTTPError(http.StatusServiceUnavailable, "El menu está desactualizado.")
+		return echo.NewHTTPError(http.StatusServiceUnavailable, "No pudimos descargar el menú.")
 	}
 
 	if !isCacheValid(menu.From, menu.To, time.Now()) {
@@ -53,7 +53,7 @@ func (s *server) getTomorrowsMenu(c echo.Context) error {
 	menu := s.getCachedCafeMenu()
 
 	if menu == nil {
-		return echo.NewHTTPError(http.StatusServiceUnavailable, "El menu está desactualizado.")
+		return echo.NewHTTPError(http.StatusServiceUnavailable, "No pudimos descargar el menú.")
 	}
 
 	if !isCacheValid(menu.From, menu.To, time.Now()) {
