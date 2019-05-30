@@ -12,7 +12,7 @@ cachedEvents = []
 cachedAvisos = []
 cachedCore = []
 
-def do_job(feed, func):
+def do_job(feed, func, send):
     print('Getting ' + feed + '...')
 
     news = func()
@@ -28,6 +28,9 @@ def do_job(feed, func):
     if lastNews == None:
         # Not saved, maybe first time?
         # Don't send anything
+        return news
+
+    if not send:
         return news
     
     newsToSend = []
@@ -49,29 +52,29 @@ def do_job(feed, func):
 
     return news
 
-def get_news_job():
+def get_news_job(send=True):
     global cachedNews
 
-    news = do_job('news', scrapper.news_json_scraper)
+    news = do_job('news', scrapper.news_json_scraper, send)
     cachedNews = news
 
-def get_events_job():
+def get_events_job(send=True):
     global cachedEvents
 
     news = scrapper.events_json_scraper()
-    news = do_job('eventos', scrapper.events_json_scraper)
+    news = do_job('eventos', scrapper.events_json_scraper, send)
     cachedEvents = news
 
-def get_avisos_job():
+def get_avisos_job(send=True):
     global cachedAvisos
 
-    news = do_job('avisos', scrapper.avisos_json_scraper)
+    news = do_job('avisos', scrapper.avisos_json_scraper, send)
     cachedAvisos = news
 
-def get_core_job():
+def get_core_job(send=True):
     global cachedCore
 
-    news = do_job('coredumped', scrapper.core_dumped_scrapper)
+    news = do_job('coredumped', scrapper.core_dumped_scrapper, send)
     cachedCore = news
 
 def schedule_bg():
@@ -84,10 +87,10 @@ def schedule_bg():
     # Setup redis connection
     r = redis.Redis(host=env['REDIS_HOST'], port=6379, db=int(env['REDIS_DB']), password=env['REDIS_PASS'], decode_responses=True)
 
-    get_news_job()
-    get_events_job()
-    get_avisos_job()
-    get_core_job()
+    get_news_job(False)
+    get_events_job(False)
+    get_avisos_job(False)
+    get_core_job(False)
 
     schedule.every(10).minutes.do(get_news_job)
     schedule.every(10).minutes.do(get_events_job)
