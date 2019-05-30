@@ -9,7 +9,7 @@ def news_json_scraper():
     for idx, row in enumerate(soup.find(id='main-content').findAll('a')):
         news = {}
         news["text"] = row.string
-        news["a-link"] = '<a href="https://etsisi.upm.es' + row.get("href") + '">' + row.string + '</a>'
+        news["a-link"] = '<a href="https://etsisi.upm.es' + row.get("href") + '">' + row.text + '</a>'
         news["link"] = 'https://etsisi.upm.es' + row.get("href")
         allnews.append(news)
     return allnews
@@ -26,7 +26,7 @@ def events_json_scraper():
     for idx, row in enumerate(soup.find(id='block-views-calendario-block-2--2').findAll('a')):
         event = {}
         event["text"] = row.string
-        event["a-link"] = '<a href="https://etsisi.upm.es' + row.get("href") + '">' + row.string + '</a>'
+        event["a-link"] = '<a href="https://etsisi.upm.es' + row.get("href") + '">' + row.text + '</a>'
         event["link"] = 'https://etsisi.upm.es' + row.get("href")
         allevents.append(event)
     return allevents
@@ -42,7 +42,7 @@ def avisos_json_scraper():
             break
         aviso = {}
         aviso["text"] = row.string
-        aviso["a-link"] = '<a href="https://etsisi.upm.es' + row.get("href") + '">' + row.string + '</a>'
+        aviso["a-link"] = '<a href="https://etsisi.upm.es' + row.get("href") + '">' + row.text + '</a>'
         aviso["link"] = 'https://etsisi.upm.es' + row.get("href")
         avisos.append(aviso)
 
