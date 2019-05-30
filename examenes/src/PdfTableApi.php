@@ -6,7 +6,7 @@
 class PdfTableApi
 {
     private string $url;
-    private string $pdf;
+    private ?string $pdf;
 
     public function __construct(string $url)
     {
@@ -18,6 +18,10 @@ class PdfTableApi
 
     public function call(): ?vec<Table>
     {
+        if ($this->pdf === null) {
+            return null;
+        }
+
         $opts = dict[
             'pdf' => $this->pdf,
             'settings' => dict[
@@ -53,7 +57,6 @@ class PdfTableApi
 
         $tables = vec<Table>[];
         $j = json_decode($resp, true);
-
 
         foreach ($j as $i => $table) {
             // Table data is in $table['data']
