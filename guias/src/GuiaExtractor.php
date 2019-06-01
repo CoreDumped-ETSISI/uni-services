@@ -28,8 +28,6 @@ class GuiaExtractor
                 continue;
             }
 
-            echo "Table URL: " . $tableurl . "\n";
-
             $tablehtml = $wc->get($tableurl);
 
             $parser = new GuiaTableParser($tablehtml);
