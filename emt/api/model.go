@@ -11,3 +11,19 @@ type Bus struct {
 	Latitude    float64       `json:"latitude"`
 	Longitude   float64       `json:"longitude"`
 }
+
+type apiResponse struct {
+	Code string
+	Data []struct {
+		Arrive []struct {
+			DistanceBus int
+			BusID       string `json:"bus"`
+			Destination string
+			Line        string
+			TimeLeft    float64 `json:"estimateArrive"`
+			Geometry    struct {
+				Coordinates []float64
+			}
+		}
+	}
+}

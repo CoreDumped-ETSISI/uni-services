@@ -84,6 +84,10 @@ func (e *EMT) RefreshSession() error {
 		return err
 	}
 
+	if d.Data == nil || len(d.Data) == 0 {
+		return errors.New("Unsuccessful status code")
+	}
+
 	s := &emtSession{
 		tim:   time.Now(),
 		exp:   time.Now().Add(time.Duration(d.Data[0].Exp) * time.Second),
@@ -126,8 +130,17 @@ func (e *EMT) GetStopEstimates(stop int) ([]Bus, error) {
 
 	r.Header.Add("Content-Type", "application/json")
 	r.Header.Add("accessToken", e.session.token)
+	r.Header.Set("Connection", "Keep-Alive")
+	r.Header.Set("Accept-Language", "en-US")
+	r.Header.Set("User-Agent", "Mozilla/5.0")
+
+	t := time.Now()
 
 	resp, err := c.Do(r)
+
+	el := time.Now().Sub(t)
+
+	log.Println("Time spent waiting for response:", el)
 
 	if err != nil {
 		return nil, err
@@ -139,7 +152,7 @@ func (e *EMT) GetStopEstimates(stop int) ([]Bus, error) {
 		return nil, fmt.Errorf("server responded unsuccessfuly")
 	}
 
-	var m map[string]interface{}
+	var m apiResponse
 
 	err = json.NewDecoder(resp.Body).Decode(&m)
 
@@ -148,7 +161,7 @@ func (e *EMT) GetStopEstimates(stop int) ([]Bus, error) {
 	}
 
 	// First, check error code
-	errcode, err := strconv.Atoi(m["code"].(string))
+	errcode, err := strconv.Atoi(m.Code)
 
 	if errcode != 0 || err != nil {
 		return nil, fmt.Errorf("server responded unsuccessfuly. errorCode: %v, err: %v", errcode, err)
@@ -156,20 +169,19 @@ func (e *EMT) GetStopEstimates(stop int) ([]Bus, error) {
 
 	var arrives []Bus
 
-	dataObj := m["data"].([]interface{})
-	arrData := dataObj[0].(map[string]interface{})
-	arrMap := arrData["Arrive"].([]interface{})
+	if m.Data == nil || len(m.Data) == 0 {
+		return arrives, nil
+	}
 
-	for _, a := range arrMap {
-		arrive := a.(map[string]interface{})
+	for _, a := range m.Data[0].Arrive {
 		arrives = append(arrives, Bus{
-			LineID:      arrive["line"].(string),
-			Destination: arrive["destination"].(string),
-			BusID:       arrive["bus"].(string),
-			TimeLeft:    time.Second * time.Duration((math.Min(25*60, arrive["estimateArrive"].(float64)))),
-			Distance:    int(arrive["DistanceBus"].(float64)),
-			Latitude:    arrive["geometry"].(map[string]interface{})["coordinates"].([]interface{})[0].(float64),
-			Longitude:   arrive["geometry"].(map[string]interface{})["coordinates"].([]interface{})[1].(float64),
+			LineID:      a.Line,
+			Destination: a.Destination,
+			BusID:       a.BusID,
+			TimeLeft:    time.Second * time.Duration((math.Min(25*60, a.TimeLeft))),
+			Distance:    int(a.DistanceBus),
+			Latitude:    a.Geometry.Coordinates[0],
+			Longitude:   a.Geometry.Coordinates[1],
 		})
 	}
 
