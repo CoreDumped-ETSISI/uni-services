@@ -138,7 +138,7 @@ class ExamPdfParser
             },
         ];
 
-        $tags = new Set();
+        $tags = Set{};
 
         foreach ($raw_tags as $i => $tag) {
             foreach ($tag_activators as $tagname => $f) {
@@ -203,6 +203,10 @@ class ExamPdfParser
             $day = "";
             
             foreach ($table as $r => $row) {
+                if (C\count($row) < 6) {
+                    // wtf is this even
+                    continue;
+                }
                 // Skip table headers
                 if ($row[1] === "TURNO") {
                     continue;
