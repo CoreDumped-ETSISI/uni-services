@@ -26,10 +26,14 @@ class GuiaTableParser
         string $semester
     ): GuiaDocente
     {
+        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
+            $url = "https://www.etsisi.upm.es" . $url;
+        }
+
         return new GuiaDocente(
             $this->clean($code),
             $this->clean($name),
-            "https://www.etsisi.upm.es" . $url,
+            $url,
             $this->clean($type),
             $this->clean($ects),
             $this->clean($semester)

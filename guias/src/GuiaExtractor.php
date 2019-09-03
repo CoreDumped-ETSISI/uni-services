@@ -29,11 +29,12 @@ class GuiaExtractor
             }
 
             $tablehtml = $wc->get($tableurl);
+            if ($tablehtml is nonnull) {
+                $parser = new GuiaTableParser($tablehtml);
+                $guias = $parser->parse();
 
-            $parser = new GuiaTableParser($tablehtml);
-            $guias = $parser->parse();
-
-            $d[$grado] = $guias;
+                $d[$grado] = $guias;
+            }
         }
 
         return $d;
