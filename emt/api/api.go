@@ -177,7 +177,7 @@ func (e *EMT) GetStopEstimates(stop int) ([]Bus, error) {
 		arrives = append(arrives, Bus{
 			LineID:      a.Line,
 			Destination: a.Destination,
-			BusID:       a.BusID,
+			BusID:       strconv.Itoa(a.BusID),
 			TimeLeft:    time.Second * time.Duration((math.Min(25*60, a.TimeLeft))),
 			Distance:    int(a.DistanceBus),
 			Latitude:    a.Geometry.Coordinates[0],

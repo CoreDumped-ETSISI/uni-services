@@ -17,7 +17,7 @@ type apiResponse struct {
 	Data []struct {
 		Arrive []struct {
 			DistanceBus int
-			BusID       string `json:"bus"`
+			BusID       int `json:"bus"`
 			Destination string
 			Line        string
 			TimeLeft    float64 `json:"estimateArrive"`
