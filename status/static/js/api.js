@@ -8,6 +8,11 @@ function getCurrentStatus(infra = false) {
                 return;
             }
 
+            if (!data) {
+                reject(new Error("no data"));
+                return;
+            }
+
             let pages = {};
             for (let site of data) {
                 if (site.infra ^ infra) continue;
@@ -24,6 +29,11 @@ function getHistory() {
             .get(function(err, data) {
             if (err) {
                 reject(err);
+                return;
+            }
+
+            if (!data) {
+                reject(new Error("no data"));
                 return;
             }
 

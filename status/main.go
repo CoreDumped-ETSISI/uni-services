@@ -16,7 +16,7 @@ func main() {
 	server.route(e)
 	c := cron.New()
 
-	c.AddFunc("0 */1 * * * *", server.checkAllServices)
+	c.AddFunc(server.cron, server.checkAllServices)
 
 	c.Start()
 

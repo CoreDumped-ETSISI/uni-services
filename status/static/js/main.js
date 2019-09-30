@@ -1,5 +1,24 @@
 const domContainer = document.querySelector('#app');
 
+class ErrorBoundary extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error) {
+        return { hasError: true };
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return this.props.fallback;
+        }
+
+        return this.props.children; 
+    }
+}
+
 class GlobalStatus extends React.Component {
     constructor(props) {
         super(props);
@@ -52,8 +71,12 @@ class PastIncidents extends React.Component {
 
     _buildIncidents() {
         let divs = [];
-
         const h = {};
+
+        if (!Object.keys(this.props.history).length) {
+            // This will get caught by the error boundary.
+            throw new Error('no history');
+        }
 
         for (let url in this.props.history) {
             h[url] = this.props.history[url].slice().reverse();
@@ -274,8 +297,12 @@ class UptimeMetric extends React.Component {
     }
 
     render() {
-        if (!this.props.history) {
+        if (this.props.history === null) {
             return <span className="text-muted">Cargando...</span>
+        }
+
+        if (!this.props.history === undefined) {
+            throw new Error('no history');
         }
 
         let uptime = this._calculateUptime();
@@ -330,8 +357,10 @@ class ServiceItem extends React.Component {
                         {statusText}
                     </div>
                 </div>
-                <UptimeBar history={this.props.history} width={this.state.width} height={this.state.height} onPopup={this.props.onPopup} />
-                <UptimeMetric history={this.props.history} width={this.state.width} height={this.state.height} />
+                <ErrorBoundary fallback={null}>
+                    <UptimeBar history={this.props.history} width={this.state.width} height={this.state.height} onPopup={this.props.onPopup} />
+                    <UptimeMetric history={this.props.history} width={this.state.width} height={this.state.height} />
+                </ErrorBoundary>
             </li>
         );
     }
@@ -386,7 +415,9 @@ class App extends React.Component {
 
     componentWillMount() {
         getCurrentStatus(false).then((p) => this.setState({ pages: p }));
-        getHistory().then((h) => this.setState({ history: h }));
+        getHistory()
+            .then((h) => this.setState({ history: h }))
+            .catch((err) => this.setState({ history: []}));
     }
 
     _setPopup(popup) {
@@ -440,9 +471,11 @@ class App extends React.Component {
                         <label class="custom-control-label" for="infraSwitch">Infraestructura</label>
                     </div>
                 </div>
-                <h2 className="pt-4">Incidencias Pasadas</h2>
-                <PastIncidents history={this.state.history} pages={this.state.pages}/>
-                <IncidentPopup popup={this.state.popup}/>
+                <ErrorBoundary fallback={null}>
+                    <h2 className="pt-4">Incidencias Pasadas</h2>                
+                    <PastIncidents history={this.state.history} pages={this.state.pages}/>                
+                    <IncidentPopup popup={this.state.popup}/>
+                </ErrorBoundary>
             </div>
         );
     }

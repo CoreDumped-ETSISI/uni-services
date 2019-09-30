@@ -93,6 +93,11 @@ func (s *server) checkService(service *serviceStatus) {
 }
 
 func (s *server) saveServiceStatus(service *serviceStatus) error {
+	// We don't have a db -- no need to save.
+	if s.postgres == nil {
+		return nil
+	}
+
 	var errText string
 
 	if service.LastError != nil {
@@ -159,6 +164,11 @@ func (s *server) launchPrecheck() {
 }
 
 func (s *server) invalidateCache() error {
+	// We don't have a DB -- we don't need a cache.
+	if s.postgres == nil {
+		return nil
+	}
+
 	var his []serviceHistory
 
 	t := time.Now().Add(-2160 * time.Hour)

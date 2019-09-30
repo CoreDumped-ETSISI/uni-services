@@ -18,6 +18,7 @@ type server struct {
 	postgres          *pg.DB
 	status            []*serviceStatus
 	circuitBreakLimit int
+	cron              string
 	log               echo.Logger
 	historyCache      []*serviceHistory
 }
@@ -45,6 +46,7 @@ func New() *server {
 
 	s.status = endpoints
 	s.circuitBreakLimit, _ = strconv.Atoi(os.Getenv("CIRCUIT_BREAK_LIMIT"))
+	s.cron = os.Getenv("CHECK_INTERVAL")
 
 	redisb, _ := strconv.Atoi(os.Getenv("REDIS_DB"))
 
@@ -54,16 +56,18 @@ func New() *server {
 		DB:       redisb,
 	})
 
-	s.postgres = pg.Connect(&pg.Options{
-		Addr:     os.Getenv("DB_HOST"),
-		Database: os.Getenv("DB_DB"),
-		User:     os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASS"),
-	})
+	if _, ok := os.LookupEnv("DB_HOST"); ok {
+		s.postgres = pg.Connect(&pg.Options{
+			Addr:     os.Getenv("DB_HOST"),
+			Database: os.Getenv("DB_DB"),
+			User:     os.Getenv("DB_USER"),
+			Password: os.Getenv("DB_PASS"),
+		})
 
-	s.postgres.CreateTable(&serviceHistory{}, &orm.CreateTableOptions{
-		IfNotExists: true,
-	})
+		s.postgres.CreateTable(&serviceHistory{}, &orm.CreateTableOptions{
+			IfNotExists: true,
+		})
+	}
 
 	return s
 }
