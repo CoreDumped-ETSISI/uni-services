@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"encoding/base64"
 	"os"
 	"strconv"
 
@@ -26,21 +27,35 @@ type server struct {
 func New() *server {
 	path := "/endpoints.json"
 
+	var endpoints []*serviceStatus
+
 	f, err := os.Open(path)
 
 	if err != nil {
-		panic(err)
-	}
+		if b64e, ok := os.LookupEnv("STATUS_ENDPOINTS_BASE64"); ok {
+			data, err := base64.StdEncoding.DecodeString(b64e)
 
-	defer f.Close()
+			if err != nil {
+				panic(err)
+			}
 
-	var endpoints []*serviceStatus
+			err = json.Unmarshal(data, &endpoints)
 
-	err = json.NewDecoder(f).Decode(&endpoints)
+			if err != nil {
+				panic(err)
+			}
+		} else {		
+			panic(err)
+		}
+	} else {
+		defer f.Close()
 
-	if err != nil {
-		panic(err)
-	}
+		err = json.NewDecoder(f).Decode(&endpoints)
+
+		if err != nil {
+			panic(err)
+		}
+	}	
 
 	s := &server{}
 
