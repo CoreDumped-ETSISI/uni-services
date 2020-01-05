@@ -73,9 +73,9 @@ func (e *EMT) RefreshSession() error {
 
 	var d struct {
 		Data []struct {
-			Exp   int    `json: "tokenSecExpiration"`
+			Exp   int    `json:"tokenSecExpiration"`
 			Token string `json:"accessToken"`
-		} `json: "data"`
+		} `json:"data"`
 	}
 
 	err = json.NewDecoder(resp.Body).Decode(&d)
@@ -106,7 +106,7 @@ func (e *EMT) GetStopEstimates(stop int) ([]Bus, error) {
 
 	api := fmt.Sprintf("https://openapi.emtmadrid.es/v1/transport/busemtmad/stops/%v/arrives/", stop)
 	var data struct {
-		CultureInfo         string `json: "cultureInfo`
+		CultureInfo         string `json:"cultureInfo"`
 		StopRequired        string `json:"Text_StopRequired_YN"`
 		EstimationsRequired string `json:"Text_EstimationsRequired_YN"`
 		IncidencesRequired  string `json:"Text_IncidencesRequired_YN"`
